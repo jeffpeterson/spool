@@ -1,6 +1,6 @@
 {
   "name": "spool",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "Thread arguments through pure functions.",
   "main": "dist/spool.js",
   "scripts": {

@@ -1,31 +1,24 @@
-
+// thread first (left) argument
+export const spool = s => _spool(s, liftL)
 export default spool
 
-// thread first (left) argument
-export function spool(s, v) {
-  return _spool(s, v, (v, args) => [v, ...args])
-}
-
 // thread last (right) argument
-export function spoor(s, v) {
-  return _spool(s, v, (v, args) => [...args, v])
-}
+export const spoor = s => _spool(s, liftR)
 
-function _spool(shape, v, fn) {
-  const s = _set(null, v);
+function _spool(shape, lift) {
+  function Spool(v) { this.v = v }
+  const s = v => new Spool(v)
 
-  for (const k in shape) {
-    s[k] = function(...args) {
-      return _set(this, shape[k](...fn(this.v, args)))
-    }
+  const p = Spool.prototype = {
+    valueOf() {return this.v},
+    toString() {return this.v},
+    toJSON() {return this.v},
   }
 
-  return v => _set(s, v)
+  for (const k in shape) p[k] = lift(shape[k], s)
+
+  return s
 }
 
-function _set(s, v) {
-  const o = Object.create(s)
-  if (v === undefined) return o
-  o.v = v
-  return o
-}
+const liftL = (f, s) => function(...a) { return s(f(this.v, ...a)) }
+const liftR = (f, s) => function(...a) { return s(f(...a, this.v)) }
